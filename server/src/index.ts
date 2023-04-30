@@ -110,13 +110,31 @@ app.post("/createTask", (req, res) => {
 app.get("/getTasks", (req,res) => {
     var responseData: Response = {}
     
-    responseData["message"] = "Task created successfully";
+    responseData["message"] = "Tasks returned successfully";
     responseData["data"] = {
         "tasks": tasks
     }
 
     res.send(JSON.stringify(responseData))
 })
+
+app.get("/getTask", (req, res) => {
+    var responseData: Response = {}
+
+    if(!("task-id" in req.headers)){
+        responseData["message"] = "Task-ID Not Found in Headers";
+        res.status(400);
+        res.send(JSON.stringify(responseData));
+    } else{
+        var taskName: string = req.headers["task-id"] as string
+        responseData["message"] = "Task returned successfully";
+        responseData["data"] = {
+            "task": tasks[taskName]
+        }
+    
+        res.send(JSON.stringify(responseData))
+    }
+});
 
 app.post("/deleteTask", (req, res) => {
     console.log(req.body);
@@ -135,7 +153,35 @@ app.post("/deleteTask", (req, res) => {
     var responseData: Response = {}
     responseData["message"] = "Task deleted successfully";
     res.send(JSON.stringify(responseData))
+});
+
+app.post("/editTask", (req, res) => {
+    if(!("taskID" in req.body)){
+        res.status(400);
+        var response: Response = {};
+        response["message"] = "Malformed Request. No taskID in req body";
+        res.send(response);
+        return;
+    }
+
+    if(!("taskJSON" in req.body)){
+        res.status(400);
+        var response: Response = {};
+        response["message"] = "Malformed Request. No taskJSON in req body";
+        res.send(response);
+        return;
+    }
+
+    tasks[req.body["taskID"]] = req.body["taskJSON"];
+
+    saveTasks();
+
+    var responseData: Response = {}
+    responseData["message"] = "Task edited successfully";
+    res.send(JSON.stringify(responseData));
 })
+
+
 
 function saveTasks(){
     fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
