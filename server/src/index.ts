@@ -111,6 +111,10 @@ app.get("/getTasks", (req,res) => {
     res.send(JSON.stringify(responseData))
 })
 
+app.post("/deleteTask", (req, res) => {
+    console.log(req.body);
+})
+
 
 app.listen(apiPort, () => {
     console.log("express online");
