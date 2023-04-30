@@ -18,6 +18,9 @@ if(searchParams.has("taskName")){
             var nameInput = document.getElementById("nameInput");
             nameInput.value = task["name"];
 
+            var id = document.getElementById("idP");
+            id.textContent = `ID: ${task["id"]}`
+
             var contentPreview = document.getElementById("codePreview");
             fileContents = task["content"];
             contentPreview.textContent = task["content"];
@@ -86,6 +89,9 @@ function saveTask(){
     var nameInput = document.getElementById("nameInput");
     taskObj["name"] = nameInput.value;
 
+    var id = document.getElementById("idP");
+    taskObj["id"] = id.textContent.replace("ID: ", "");
+
     var contentPreview = document.getElementById("codePreview");
     taskObj["content"] = fileContents;
 
@@ -113,7 +119,7 @@ function saveTask(){
     const options2 = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: `{\n	"taskID": "${nameInput.value}",\n	"taskJSON": ${JSON.stringify(taskObj)}\n}`
+        body: `{\n	"taskID": "${taskObj["id"]}",\n	"taskJSON": ${JSON.stringify(taskObj)}\n}`
       };
       
       fetch('http://localhost:8080/editTask', options2)

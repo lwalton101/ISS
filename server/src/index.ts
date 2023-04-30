@@ -86,9 +86,11 @@ app.post("/createTask", (req, res) => {
         separator: '-',
         length: 3,
     };
+    var id = uniqueNamesGenerator(customConfig);
 
     var newTask : Task = {
-        "name": uniqueNamesGenerator(customConfig),
+        "name": id,
+        "id": id,
         "content": "",
         variables: new Array<TaskVariable>()
     };
@@ -179,9 +181,7 @@ app.post("/editTask", (req, res) => {
     var responseData: Response = {}
     responseData["message"] = "Task edited successfully";
     res.send(JSON.stringify(responseData));
-})
-
-
+});
 
 function saveTasks(){
     fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));

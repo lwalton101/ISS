@@ -16,7 +16,7 @@ function updateTasks(){
   
         for(let x in tasks){
           var listItem = document.createElement("li");
-          listItem.innerText = x;
+          listItem.innerText = tasks[x]["name"];
           listItem.id = x;
   
           var runButton = document.createElement("button");
