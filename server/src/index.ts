@@ -1,13 +1,20 @@
 import WebSocketServer, { WebSocket } from "ws"
 import TaskVariable from "./TaskVariable";
 import path from "path"
-import express, { response } from "express"
+import express from "express"
 import fs from "fs";
 import Task from "./Task";
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
 var cors = require("cors");
 const app = express();
 const apiPort = 8080; 
+var bodyParser = require('body-parser')
+
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
+
 
 const wss : WebSocketServer.Server = new WebSocketServer.Server({port: 25565});
 
@@ -88,7 +95,7 @@ app.post("/createTask", (req, res) => {
 
     tasks[newTask.name] = newTask
 
-    fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
+    saveTasks();
 
     var responseData: Response = {}
     
@@ -113,7 +120,25 @@ app.get("/getTasks", (req,res) => {
 
 app.post("/deleteTask", (req, res) => {
     console.log(req.body);
+
+    if(!("taskID" in req.body)){
+        res.status(400);
+        var response: Response = {}
+        response["message"] = "Malformed Request. No taskID in req body";
+        res.send(response);
+        return;
+    }else{
+        delete tasks[req.body["taskID"]];
+        saveTasks();
+    }
+    res.send({
+        "test": "bar"
+    });
 })
+
+function saveTasks(){
+    fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
+}
 
 
 app.listen(apiPort, () => {
