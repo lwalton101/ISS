@@ -26,6 +26,11 @@ function updateTasks(){
           var editButton = document.createElement("button");
           editButton.id = x + "edit";
           editButton.textContent = "EDIT";
+
+          editButton.onclick = function(){
+            console.log(location.host + "/editTask?taskName=" + x)
+            document.location = location.protocol + "//" + location.host + "/editTask?taskName=" + x
+          }
   
           var deleteButton = document.createElement("button");
           deleteButton.id = x + "DELETE";
