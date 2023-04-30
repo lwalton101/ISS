@@ -1,0 +1,22 @@
+{
+    "test": {
+        "name": "test",
+        "content": "print(\"hello world\")",
+        "variables": [
+            {
+                "name": "url",
+                "type": 1
+            }
+        ]
+    },
+    "delicious-ivory-dingo": {
+        "name": "delicious-ivory-dingo",
+        "content": "",
+        "variables": []
+    },
+    "upper-rose-sturgeon": {
+        "name": "upper-rose-sturgeon",
+        "content": "",
+        "variables": []
+    }
+}
