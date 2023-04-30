@@ -131,9 +131,10 @@ app.post("/deleteTask", (req, res) => {
         delete tasks[req.body["taskID"]];
         saveTasks();
     }
-    res.send({
-        "test": "bar"
-    });
+
+    var responseData: Response = {}
+    responseData["message"] = "Task deleted successfully";
+    res.send(JSON.stringify(responseData))
 })
 
 function saveTasks(){
