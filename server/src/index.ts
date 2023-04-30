@@ -90,7 +90,25 @@ app.post("/createTask", (req, res) => {
 
     fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
 
-    res.send("test");
+    var responseData: Response = {}
+    
+    responseData["message"] = "Task created successfully";
+    responseData["data"] = {
+        "taskID": newTask.name
+    }
+
+    res.send(JSON.stringify(responseData))
+})
+
+app.get("/getTasks", (req,res) => {
+    var responseData: Response = {}
+    
+    responseData["message"] = "Task created successfully";
+    responseData["data"] = {
+        "tasks": tasks
+    }
+
+    res.send(JSON.stringify(responseData))
 })
 
 
