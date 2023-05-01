@@ -333,8 +333,8 @@ function executeScheduledTask(scheduledTask: ScheduledTask){
 
         var content: string = task.content;
         //TODO: variables
-        for(let variable of scheduledTask.variables){
-            content = content.replace(variable.name, variable.value);
+        for(let variable in scheduledTask.variables){
+            content = content.replace(scheduledTask.variables[variable].name, scheduledTask.variables[variable].value);
         }
 
         websockets.get(deviceID)?.send(JSON.stringify({
