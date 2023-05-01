@@ -1,1 +1,1 @@
-{"compact-olive-macaw":{"name":"click time","id":"compact-olive-macaw","content":"","variables":[]}}
+{"federal-bronze-hummingbird":{"name":"federal-bronze-hummingbird","id":"federal-bronze-hummingbird","content":"score = \"34\"\r\n\r\nprint(\"You got 34 points!\")\r\n\r\nprint(\"You got \" + score + \" points!\")\r\n\r\nprint(f\"You got {score} points!\")\r\n\r\n\r\nfirstName = \"Amin\"\r\nlastName = \"Davies\"\r\n\r\nprint(f\"Your name is {firstName} {lastName}\")","variables":[{"name":"test","type":0},{"name":"hell","type":1}]}}

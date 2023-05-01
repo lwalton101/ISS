@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>HTML 5 Boilerplate</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/modal.css">
     <script defer src="js/tasks.js"></script>
   </head>
   <body>
@@ -15,5 +15,67 @@
     <ul id="taskHolder"></ul>
     <h2>Scheduled Tasks:</h2>
     <ul id="scheduledTasksHolder"></ul>
+
+    <div id="runModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close">&times;</span>
+          <h2 id="modalHeader">Modal Header</h2>
+        </div>
+        <div class="modal-body">
+          <input type="text" placeholder="Enter Name" id="scheduleNameInput">
+          <p>Schedule Type: </p>
+          <select id="scheduleTypeSelect" onchange="updateScheduleOptions()">
+            <option value="Now">Now</option>
+            <option value="Future">Future</option>
+            <option value="Recurring">Reccuring</option>
+            <option value="Timer">Timer</option>
+          </select>
+
+          <div id="futureContent">
+            <input type="date" id="futureDateInput">
+            <input type="time" id="futureTimeInput">
+          </div>
+          <div id="reccuringContent">
+            <input type="checkbox" id="mondayCheckbox" value="Monday">
+            <label for="mondayCheckbox">Monday</label>
+
+            <input type="checkbox" id="tuesdayCheckbox" value="Tuesday">
+            <label for="tuesdayCheckbox">Tuesday</label>
+
+            <input type="checkbox" id="wednesdayCheckbox" value="Wednesday">
+            <label for="wednesdayCheckbox">Wednesday</label>
+
+            <input type="checkbox" id="thursdayCheckbox" value="Thursday">
+            <label for="thursdayCheckbox">Thursday</label>
+
+            <input type="checkbox" id="fridayCheckbox" value="Friday">
+            <label for="fridayCheckbox">Friday</label>
+
+            <input type="checkbox" id="saturdayCheckbox" value="Saturday">
+            <label for="saturdayCheckbox">Saturday</label>
+
+            <input type="checkbox" id="sundayCheckbox" value="Sunday">
+            <label for="sundayCheckbox">Sunday</label>
+
+            <input type="time" id="timeInput">
+          </div>
+
+          <div id="timerContent">
+            <input type="number" id="intervalInput">
+            <label>Every x minutes: </label>
+          </div>
+
+          <div id="scheduleVarHolder">
+            <h2>Variables</h2>
+          </div>
+
+          <select id="deviceSelect">
+
+          </select>
+          <button onclick="scheduleTask()">Schedule</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

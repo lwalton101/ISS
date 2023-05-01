@@ -39,7 +39,7 @@ if(searchParams.has("taskName")){
                 fileReader.readAsText(file);
             }
 
-            for(let variable in task["variables"]){
+            for(let variable of task["variables"]){
                 console.log(variable);
                 
                 addVariable(variable["name"], variable["type"]);
@@ -51,7 +51,7 @@ if(searchParams.has("taskName")){
     .catch(err => console.error(err));
     }
 
-function addVariable(name = "", type = "INT"){
+function addVariable(name, type = "INT"){
     var varHolder = document.getElementById("varHolder");
     var rootVar = document.createElement("li");
 
@@ -102,8 +102,6 @@ function saveTask(){
     for(const rootVar of varHolder.children){
         taskObj["variables"][index] = {}
         for(const kid of rootVar.children){
-            
-
             if(kid.nodeName == "INPUT"){
                 taskObj["variables"][index]["name"] = kid.value;
             }

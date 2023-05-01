@@ -5,6 +5,9 @@ import express from "express"
 import fs from "fs";
 import Task from "./Task";
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator';
+import ScheduledTask from './ScheduledTask';
+import VariableHolder from "./VariableHolder";
+import ScheduleType from "./ScheduleType";
 var cors = require("cors");
 const app = express();
 const apiPort = 8080; 
@@ -29,13 +32,27 @@ for(let i in taskContent){
     tasks[task.name] = task
 }
 
-const websockets = new Map();
+var scheduledTaskContent: Response = require("./scheduledTasks.json");
+var scheduledTasks: Response = {}
+for(let i in scheduledTaskContent){
+    let scheduledTask: ScheduledTask = scheduledTaskContent[i] as ScheduledTask;
+    scheduledTasks[scheduledTask.id] = scheduledTask
+}
+
+const websockets: Map<any, WebSocket> = new Map();
 
 wss.on("connection", (ws, message) => {
     if("device-name" in message.headers){
         var deviceName = message.headers["device-name"];
         websockets.set(deviceName, ws);  
+    } else{
+        ws.close()
     }
+
+    ws.on("close", (code, reason)=> {
+        console.log(`Websocket ${message.headers["device-name"]} closed`)
+        websockets.delete(message.headers["device-name"]);
+    })
 });
 
 app.use(cors())
@@ -183,9 +200,115 @@ app.post("/editTask", (req, res) => {
     res.send(JSON.stringify(responseData));
 });
 
+app.post("/scheduleTask", (req,res) => {
+    var checks: Array<boolean> = [];
+    checks.push(checkIfValueInJson(req.body, "scheduleJSON", res));
+    checks.push(checkIfValueInJson(req.body["scheduleJSON"], "deviceID", res));
+    checks.push(checkIfValueInJson(req.body["scheduleJSON"], "id", res));
+    checks.push(checkIfValueInJson(req.body["scheduleJSON"], "name", res));
+    checks.push(checkIfValueInJson(req.body["scheduleJSON"], "scheduleData", res));
+    checks.push(checkIfValueInJson(req.body["scheduleJSON"], "type", res));
+    var scheduleJSON = req.body["scheduleJSON"]
+    if(scheduleJSON["type"] === "Future"){
+        checks.push(checkIfValueInJson(scheduleJSON["scheduleData"], "date", res));
+        checks.push(checkIfValueInJson(scheduleJSON["scheduleData"], "time", res));
+    } else if(scheduleJSON["type"] === "Recurring"){
+        checks.push(checkIfValueInJson(scheduleJSON["scheduleData"], "days", res));
+        checks.push(checkIfValueInJson(scheduleJSON["scheduleData"], "time", res));
+    } else if(scheduleJSON["type"] === "Recurring"){
+        checks.push(checkIfValueInJson(scheduleJSON["scheduleData"], "interval", res));
+    }
+
+    var variablesHolder: VariableHolder = scheduleJSON["variables"] as VariableHolder;
+    for(const x in variablesHolder.vars){
+        checks.push(checkIfValueInJson(x, "name", res));
+        checks.push(checkIfValueInJson(x, "value", res))
+    }
+    
+    var allGood = true;
+
+    for(let x of checks){
+        if(!x){
+            allGood = x;
+        }
+    }
+    
+    if(allGood){
+        var taskToSchedule: ScheduledTask = scheduleJSON as ScheduledTask;
+        if(!websockets.has(taskToSchedule.deviceID)){
+            res.status(400);
+            var response: Response = {};
+            response["message"] = `Malformed Request. Cannot find device id`;
+            res.send(response);
+            return;
+        }
+
+        scheduledTasks[scheduleJSON["name"]] = taskToSchedule
+        var responseData: Response = {}
+        responseData["message"] = "Task scheduled successfully";
+        res.send(JSON.stringify(responseData));
+        saveScheduledTasks();
+    }
+})
+
+app.get("/getScheduledTasks", (req,res) => {
+    var responseData: Response = {}
+    
+    responseData["message"] = "Scheduled tasks returned successfully";
+    responseData["data"] = {
+        "tasks": scheduledTasks
+    }
+
+    res.send(JSON.stringify(responseData))
+})
+
+function checkIfValueInJson(jsonObj: any, value: string, res: any) : boolean{
+    if(!(value in jsonObj) || jsonObj[value] === ""){
+        res.status(400);
+        var response: Response = {};
+        response["message"] = `Malformed Request. No ${value} in req body`;
+        res.send(response);
+        return false;
+    } else{
+        return true;
+    }
+}
+
 function saveTasks(){
     fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
 }
+
+function saveScheduledTasks(){
+    fs.writeFileSync(path.join(__dirname, "scheduledTasks.json"), JSON.stringify(scheduledTasks));
+}
+
+function checkIfTasksShouldFire(){
+    var date: Date = new Date();
+
+    for(const task in scheduledTasks){
+        var scheduledTask: ScheduledTask = scheduledTasks[task] as ScheduledTask;
+        if(scheduledTask.type === "Now"){
+            executeScheduledTask(scheduledTask);
+            unscheduleTask(scheduledTask.name);
+        }
+    }
+}
+
+function unscheduleTask(name: string){
+    delete scheduledTasks[name];
+    saveScheduledTasks();
+}
+
+function executeScheduledTask(scheduledTask: ScheduledTask){
+    var deviceID: string = scheduledTask.deviceID;
+    if(websockets.has(deviceID)){
+        console.log(scheduledTask.id);
+        var task: Task = tasks[scheduledTask.id] as Task;
+        websockets.get(deviceID)?.send(task.content);
+    }
+}
+
+setInterval(checkIfTasksShouldFire, 5);
 
 
 app.listen(apiPort, () => {

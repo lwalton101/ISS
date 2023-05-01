@@ -1,7 +1,8 @@
 enum ScheduleType{
-    NOW,
+    Now,
     FUTURE,
-    RECCURING
+    RECCURING,
+    TIMER
 }
 
 export default ScheduleType;
