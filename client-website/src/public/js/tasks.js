@@ -130,7 +130,7 @@ function createTask(){
 function updateDevices(){
     const options = {method: 'GET'};
 
-    fetch('http://localhost:8080/devices', options)
+    fetch(baseURL + '/devices', options)
     .then(response => response.json())
     .then(response => {
         for(let x of response["data"]){
