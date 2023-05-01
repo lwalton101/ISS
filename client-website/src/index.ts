@@ -11,4 +11,13 @@ app.listen(webPort, () => {
 
 app.get("/", (req, res) => {
     res.sendFile('index.html');
+});
+
+app.get("/tasks", (req, res) => {
+    res.sendFile('public/tasks.html', {root: __dirname});
+})
+
+
+app.get("/editTask", (req, res) => {
+    res.sendFile('public/editTask.html', {root: __dirname});
 })
