@@ -8,6 +8,7 @@ import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'uniqu
 import ScheduledTask from './ScheduledTask';
 import VariableHolder from "./VariableHolder";
 import ScheduleType from "./ScheduleType";
+import TaskVariableType from "./TaskVariableType";
 var cors = require("cors");
 const app = express();
 const apiPort = 8080; 
@@ -332,9 +333,13 @@ function executeScheduledTask(scheduledTask: ScheduledTask){
 
         var content: string = task.content;
         //TODO: variables
+        for(let variable of scheduledTask.variables){
+            content = content.replace(variable.name, variable.value);
+        }
+
         websockets.get(deviceID)?.send(JSON.stringify({
             "messageType": "EXECUTE",
-            "content": task.content
+            "content": content
     }));
     }
 }
