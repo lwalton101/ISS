@@ -17,7 +17,7 @@ var bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '50mb'}))
 
 
 const wss : WebSocketServer.Server = new WebSocketServer.Server({port: 25565});
@@ -274,7 +274,26 @@ app.post("/unscheduleTask", (req,res)=> {
     var responseData: Response = {}
     responseData["message"] = "Scheduled task deleted successfully";
     res.send(JSON.stringify(responseData))
-})
+});
+
+app.post("/uploadFile", (req, res) => {
+    if(!checkIfValueInJson(req.body, "fileName", res)){
+        return;
+    }
+
+    if(!checkIfValueInJson(req.body, "fileContents", res)){
+        return;
+    }
+
+    if(websockets.has("Ishaan_PC")){
+        websockets.get("Ishaan_PC")?.send(JSON.stringify({
+            "messageType": "DOWNLOAD",
+            "content": req.body["fileContents"],
+            "fileName": req.body["fileName"]
+        }));
+    }
+    res.send({"give nutrient": "no buy my nutrient for $10.99"});
+});
 
 function checkIfValueInJson(jsonObj: any, value: string, res: any) : boolean{
     if(!(value in jsonObj) || jsonObj[value] === ""){

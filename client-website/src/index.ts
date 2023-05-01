@@ -21,3 +21,8 @@ app.get("/tasks", (req, res) => {
 app.get("/editTask", (req, res) => {
     res.sendFile('public/editTask.html', {root: __dirname});
 })
+
+app.get("/upload", (req, res) => {
+    //res.send("my mummy said you hate foreigners")
+    res.sendFile('public/upload.html', {root: __dirname});
+});
