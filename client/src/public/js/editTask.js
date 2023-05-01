@@ -51,7 +51,8 @@ if(searchParams.has("taskName")){
     .catch(err => console.error(err));
     }
 
-function addVariable(name, type = "INT"){
+function addVariable(name, type){
+    console.log(type);
     var varHolder = document.getElementById("varHolder");
     var rootVar = document.createElement("li");
 
@@ -61,15 +62,18 @@ function addVariable(name, type = "INT"){
     varName.value = name;
     rootVar.appendChild(varName);
 
+    var options = ["INT", "STRING"];
     var typeInput = document.createElement("select");
     typeInput.id = "typeInput" + name;
-    var options = ["INT", "STRING"]
+    
     for(let x in options){
         var option = document.createElement("option");
         option.value = options[x];
         option.innerText = options[x];
         typeInput.appendChild(option);
     }
+
+    typeInput.value = options[type];
 
     var deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
