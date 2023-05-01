@@ -329,7 +329,13 @@ function executeScheduledTask(scheduledTask: ScheduledTask){
         console.log(scheduledTask.id);
         var task: Task = tasks[scheduledTask.id] as Task;
         console.log(task);
-        websockets.get(deviceID)?.send(task.content);
+
+        var content: string = task.content;
+        //TODO: variables
+        websockets.get(deviceID)?.send(JSON.stringify({
+            "messageType": "EXECUTE",
+            "content": task.content
+    }));
     }
 }
 
