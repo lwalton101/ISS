@@ -1,11 +1,11 @@
-
+var baseURL = location.protocol + "//" + location.hostname + ":8080"
 var modal = document.getElementById("runModal");
 updateTasks();
 updateScheduledTasks();
 function updateTasks(){
     const options = {method: 'GET'};
 
-    fetch('http://localhost:8080/getTasks', options)
+    fetch(baseURL + '/getTasks', options)
     .then(response => response.json())
     .then(response => {
         var taskHolder = document.getElementById("taskHolder");
@@ -53,7 +53,7 @@ function updateTasks(){
                   body: `{"taskID":"${x}"}`
                 };
                 
-              fetch('http://localhost:8080/deleteTask', options)
+              fetch(baseURL + '/deleteTask', options)
                   .then(response => response.json())
                   .then(response => console.log(response))
                   .catch(err => console.error(err));
@@ -79,7 +79,7 @@ function updateTasks(){
 function updateScheduledTasks(){
     const options = {method: 'GET'};
 
-    fetch('http://localhost:8080/getScheduledTasks', options)
+    fetch(baseURL + '/getScheduledTasks', options)
         .then(response => response.json())
         .then(response => {
             var tasks = response["data"]["tasks"]
@@ -106,7 +106,7 @@ function updateScheduledTasks(){
                         body: `{"scheduleID":"${x}"}`
                       };
                       
-                    fetch('http://localhost:8080/unscheduleTask', options)
+                    fetch(baseURL + '/unscheduleTask', options)
                         .then(response => response.json())
                         .then(response => document.getElementById(x + "sched").remove())
                         .catch(err => console.error(err));
@@ -121,7 +121,7 @@ function updateScheduledTasks(){
 function createTask(){
     const options = {method: 'POST'};
 
-    fetch('http://localhost:8080/createTask', options)
+    fetch(baseURL + '/createTask', options)
     .then(response => response.json())
     .then(response => updateTasks())
     .catch(err => console.error(err));
@@ -178,7 +178,7 @@ function updateScheduleOptions(){
 function updateVarDisplay(id){
     const options = {method: 'GET', headers: {'Task-ID': id}};
 
-    fetch('http://localhost:8080/getTask', options)
+    fetch(baseURL + '/getTask', options)
     .then(response => response.json())
     .then(response => {
         var vars = response["data"]["task"]["variables"];
@@ -271,7 +271,7 @@ function scheduleTask(){
         body: `{"scheduleJSON": ${JSON.stringify(scheduleObj)}}`
       };
 
-      fetch('http://localhost:8080/scheduleTask', options)
+      fetch(baseURL + '/scheduleTask', options)
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));
