@@ -92,11 +92,25 @@ function updateScheduledTasks(){
 
                 var listItem = document.createElement("li");
                 listItem.innerText = taskObj["name"];
-                listItem.id = x;
+                listItem.id = x + "sched";
         
                 var unscheduleButton = document.createElement("button");
                 unscheduleButton.id = x + "UNSCHEDULE";
                 unscheduleButton.textContent = "UNSCHEDULE";
+
+                unscheduleButton.onclick = function(){
+                    
+                    const options = {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: `{"scheduleID":"${x}"}`
+                      };
+                      
+                    fetch('http://localhost:8080/unscheduleTask', options)
+                        .then(response => response.json())
+                        .then(response => document.getElementById(x + "sched").remove())
+                        .catch(err => console.error(err));
+                }
 
                 listItem.appendChild(unscheduleButton);
                 scheduledTasksHolder.appendChild(listItem);

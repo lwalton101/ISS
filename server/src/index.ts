@@ -36,7 +36,7 @@ var scheduledTaskContent: Response = require("./scheduledTasks.json");
 var scheduledTasks: Response = {}
 for(let i in scheduledTaskContent){
     let scheduledTask: ScheduledTask = scheduledTaskContent[i] as ScheduledTask;
-    scheduledTasks[scheduledTask.id] = scheduledTask
+    scheduledTasks[scheduledTask.name] = scheduledTask
 }
 
 const websockets: Map<any, WebSocket> = new Map();
@@ -156,7 +156,7 @@ app.get("/getTask", (req, res) => {
 });
 
 app.post("/deleteTask", (req, res) => {
-    console.log(req.body);
+
 
     if(!("taskID" in req.body)){
         res.status(400);
@@ -242,7 +242,7 @@ app.post("/scheduleTask", (req,res) => {
             res.send(response);
             return;
         }
-
+        console.log(scheduleJSON["name"])
         scheduledTasks[scheduleJSON["name"]] = taskToSchedule
         var responseData: Response = {}
         responseData["message"] = "Task scheduled successfully";
@@ -259,6 +259,19 @@ app.get("/getScheduledTasks", (req,res) => {
         "tasks": scheduledTasks
     }
 
+    res.send(JSON.stringify(responseData))
+})
+
+app.post("/unscheduleTask", (req,res)=> {
+    if(!checkIfValueInJson(req.body, "scheduleID", res)){
+        return;
+    }else{
+        delete scheduledTasks[req.body["scheduleID"]];
+        saveScheduledTasks();
+    }
+
+    var responseData: Response = {}
+    responseData["message"] = "Scheduled task deleted successfully";
     res.send(JSON.stringify(responseData))
 })
 
@@ -283,13 +296,24 @@ function saveScheduledTasks(){
 }
 
 function checkIfTasksShouldFire(){
-    var date: Date = new Date();
+    var currentDate: Date = new Date();
+    var dateString: string = `${currentDate.getFullYear()}-${currentDate.getMonth()}-${currentDate.getDay()}`
+    var timeString: string = `${currentDate.getHours}:${currentDate.getMinutes()}`;
 
     for(const task in scheduledTasks){
         var scheduledTask: ScheduledTask = scheduledTasks[task] as ScheduledTask;
         if(scheduledTask.type === "Now"){
             executeScheduledTask(scheduledTask);
             unscheduleTask(scheduledTask.name);
+        }
+        if(scheduledTask.type === "Future"){
+            var executeDate: string = scheduledTask.scheduleData["date"];
+            var executeTime: string = scheduledTask.scheduleData["time"];
+
+            if(dateString === executeDate && timeString === executeTime){
+                executeScheduledTask(scheduledTask);
+                unscheduleTask(scheduledTask.name);
+            }
         }
     }
 }
@@ -304,6 +328,7 @@ function executeScheduledTask(scheduledTask: ScheduledTask){
     if(websockets.has(deviceID)){
         console.log(scheduledTask.id);
         var task: Task = tasks[scheduledTask.id] as Task;
+        console.log(task);
         websockets.get(deviceID)?.send(task.content);
     }
 }
