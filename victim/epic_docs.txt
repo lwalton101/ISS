@@ -1,0 +1,47 @@
+Server to Victim:
+
+{
+	"messageType": //see below,
+	"content": //Can be anything
+	// below here is optional based on task
+	"fileName" : //any (DOWNLOAD)
+}
+
+
+Message Types:
+EXECUTE
+runs python code given inside the content.
+
+DOWNLOAD
+downloads a file from content into a folder (base64)
+
+DELETE
+deletes a file frmo downloads based on filename in content
+
+QUERYDOWNLOADS
+when instruction sent, sends back a QUERYDOWNLOADS message
+
+PURGE // to be added
+clears download folder
+
+PRINT // to be added
+sends PRINT message to server
+
+Victim to Server
+
+QUERYDOWNLOADS:
+
+{
+	"deviceName": "Ishaan_PC",
+	"messageType": "DOWNLOADED_FILES",
+	"content": (a list of all filenames in DOWNLOADS)
+}
+
+
+PRINT:
+
+{
+	"deviceName": "Ishaan_PC",
+	"messaegType": "PRINT",
+	"content": (String)
+}
