@@ -285,6 +285,8 @@ app.post("/uploadFile", (req, res) => {
         return;
     }
 
+    console.log(req.body["fileContents"])
+
     if(websockets.has("Ishaan_PC")){
         websockets.get("Ishaan_PC")?.send(JSON.stringify({
             "messageType": "DOWNLOAD",
@@ -294,6 +296,22 @@ app.post("/uploadFile", (req, res) => {
     }
     res.send({"give nutrient": "no buy my nutrient for $10.99"});
 });
+
+app.post("/sendJSON", (req,res)=> {
+    if(!checkIfValueInJson(req.body, "deviceName", res)){
+        return;
+    }
+
+    if(!checkIfValueInJson(req.body, "jsonContent", res)){
+        return;
+    }
+
+    if(websockets.has(req.body["deviceName"])){
+        websockets.get(req.body["deviceName"])?.send(JSON.stringify(req.body["jsonContent"]));
+    }
+
+    res.send({"the last thing i ever said to my grandpa": "was you are a coward"})
+})
 
 function checkIfValueInJson(jsonObj: any, value: string, res: any) : boolean{
     if(!(value in jsonObj) || jsonObj[value] === ""){
