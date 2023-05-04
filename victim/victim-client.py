@@ -2,7 +2,7 @@ import websocket
 import os
 import json, base64
 # Define the websocket URL
-url = "ws://34.125.87.92:25565"
+url = "ws://localhost:25565"
 
 
 headers = {
@@ -14,11 +14,12 @@ def on_open(ws):
     print("Connection established!")
 
 def wsPrint(message):
-    ws.send({
+    print("Sending message")
+    ws.send(json.dumps({
         "deviceName" : "Ishaan_PC",
         "messageType" : "PRINT",
         "content" : message
-    })
+    }))
 
 cwd = os.getcwd()
 

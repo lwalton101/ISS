@@ -23,6 +23,7 @@
           <h2 id="modalHeader">Modal Header</h2>
         </div>
         <div class="modal-body">
+          <p id="schedId"></p>
           <input type="text" placeholder="Enter Name" id="scheduleNameInput">
           <p>Schedule Type: </p>
           <select id="scheduleTypeSelect" onchange="updateScheduleOptions()">
@@ -73,7 +74,7 @@
           <select id="deviceSelect">
 
           </select>
-          <button onclick="scheduleTask()">Schedule</button>
+          <button id="scheduleButton">Schedule</button>
         </div>
       </div>
     </div>
