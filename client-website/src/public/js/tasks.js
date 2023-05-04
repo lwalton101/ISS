@@ -18,6 +18,7 @@ function updateTasks(){
           var listItem = document.createElement("li");
           listItem.innerText = tasks[x]["name"];
           listItem.id = x;
+          console.log(tasks[x]["id"])
   
           var runButton = document.createElement("button");
           runButton.id = x + "run";
@@ -28,7 +29,7 @@ function updateTasks(){
 
             var modalHeader = document.getElementById("modalHeader")
             modalHeader.textContent = `Schedule task "${tasks[x]["name"]}"`
-            updateScheduleOptions();
+            updateScheduleOptions(x);
             updateVarDisplay(x);
             updateDevices();
           }
@@ -155,11 +156,13 @@ span.onclick = function() {
     }
   }
 var scheduleTypeSelect = document.getElementById("scheduleTypeSelect");
-function updateScheduleOptions(){
+function updateScheduleOptions(id){
     var futureDiv = document.getElementById("futureContent");
     var reccuringDiv = document.getElementById("reccuringContent");
     var timerDiv = document.getElementById("timerContent");
+    var idText = document.getElementById("schedId")
 
+    idText.textContent = id;
     futureDiv.style.display = "none";
     reccuringDiv.style.display = "none";
     timerDiv.style.display = "none";
@@ -211,13 +214,13 @@ function updateVarDisplay(id){
     .catch(err => console.error(err));
 }
 
+document.getElementById("scheduleButton").onclick = () => {
+    scheduleTask(document.getElementById("schedId").textContent)
+}
 
-function scheduleTask(){
+function scheduleTask(id){
     var scheduleObj = {}
 
-    var id = document.getElementById("modalHeader").textContent.replace("\"", "").replace("Schedule task ", "")
-    id = id.slice(0, -1);
-    console.log(id);
     scheduleObj["id"] = id;
     scheduleObj["name"] = document.getElementById("scheduleNameInput").value;
     var scheduleType = document.getElementById("scheduleTypeSelect").value;
