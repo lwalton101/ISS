@@ -1,6 +1,8 @@
 let paramsString = document.location.search
 let searchParams = new URLSearchParams(paramsString);
 
+var baseURL = location.protocol + "//" + location.hostname + ":8080"
+
 let fileContents = "";
 
 if(searchParams.has("taskName")){
@@ -9,7 +11,7 @@ if(searchParams.has("taskName")){
 
     const options = {method: 'GET', headers: {'Task-ID': searchParams.get("taskName")}};
 
-    fetch('http://localhost:8080/getTask', options)
+    fetch(baseURL + `/getTask`, options)
     .then(response => response.json())
     .then(response => {
         if(response["message"] == "Task returned successfully"){
@@ -124,7 +126,7 @@ function saveTask(){
         body: `{\n	"taskID": "${taskObj["id"]}",\n	"taskJSON": ${JSON.stringify(taskObj)}\n}`
       };
       
-      fetch('http://localhost:8080/editTask', options2)
+      fetch(baseURL + '/editTask', options2)
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));
