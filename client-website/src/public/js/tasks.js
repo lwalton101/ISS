@@ -15,13 +15,13 @@ function updateTasks(){
         tasks = response["data"]["tasks"]
   
         for(let x in tasks){
+            var id = tasks[x]["id"];
           var listItem = document.createElement("li");
           listItem.innerText = tasks[x]["name"];
-          listItem.id = x;
-          console.log(tasks[x]["id"])
+          listItem.id = id;
   
           var runButton = document.createElement("button");
-          runButton.id = x + "run";
+          runButton.id = id + "run";
           runButton.textContent = "RUN";
 
           runButton.onclick = function(){
@@ -35,23 +35,23 @@ function updateTasks(){
           }
   
           var editButton = document.createElement("button");
-          editButton.id = x + "edit";
+          editButton.id = id + "edit";
           editButton.textContent = "EDIT";
 
           editButton.onclick = function(){
-            console.log(location.host + "/editTask?taskName=" + x)
-            document.location = location.protocol + "//" + location.host + "/editTask?taskName=" + x
+            console.log(location.host + "/editTask?taskName=" + id)
+            document.location = location.protocol + "//" + location.host + "/editTask?taskName=" + id
           }
   
           var deleteButton = document.createElement("button");
-          deleteButton.id = x + "DELETE";
+          deleteButton.id = id + "DELETE";
           deleteButton.textContent = "DELETE";
           deleteButton.onclick = function(){
-              document.getElementById(x).remove();
+              document.getElementById(id).remove();
               const options = {
                   method: 'POST',
                   headers: {'Content-Type': 'application/json'},
-                  body: `{"taskID":"${x}"}`
+                  body: `{"taskID":"${id}"}`
                 };
                 
               fetch(baseURL + '/deleteTask', options)

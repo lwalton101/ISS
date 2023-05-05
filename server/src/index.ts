@@ -33,7 +33,7 @@ var taskContent: Response = require("./tasks.json");
 var tasks: Response = {};
 for(let i in taskContent){
     let task: Task = taskContent[i] as Task;
-    tasks[task.name] = task
+    tasks[task.id] = task
 }
 
 var scheduledTaskContent: Response = require("./scheduledTasks.json");
@@ -187,7 +187,7 @@ app.get("/getTask", (req, res) => {
             "task": tasks[taskName]
         }
     
-        res.send(JSON.stringify(responseData))
+        res.send(JSON.stringify(responseData));
     }
 });
 
