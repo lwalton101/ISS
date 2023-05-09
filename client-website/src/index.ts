@@ -26,3 +26,11 @@ app.get("/upload", (req, res) => {
     //res.send("my mummy said you hate foreigners")
     res.sendFile('public/upload.html', {root: __dirname});
 });
+
+app.get("/devices", (req, res) => {
+    res.sendFile('public/devices.html', {root: __dirname});
+});
+
+app.get("/device", (req, res) => {
+    res.sendFile('public/device.html', {root: __dirname});
+});

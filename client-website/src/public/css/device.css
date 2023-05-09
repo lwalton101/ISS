@@ -1,0 +1,8 @@
+.terminal{
+    height: 200px;
+    overflow-y: scroll;
+    background-color: rgb(180, 180, 180);
+    border: 5px solid black;
+    border-radius: 7px;
+    padding: 5px;
+}

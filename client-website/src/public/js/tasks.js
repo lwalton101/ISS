@@ -37,21 +37,20 @@ function updateTasks(){
           var editButton = document.createElement("button");
           editButton.id = id + "edit";
           editButton.textContent = "EDIT";
-
-          editButton.onclick = function(){
-            console.log(location.host + "/editTask?taskName=" + id)
-            document.location = location.protocol + "//" + location.host + "/editTask?taskName=" + id
+          editButton.onclick = function(ev){
+            var newID = ev.target.id.replace("edit", "");
+            document.location = location.protocol + "//" + location.host + "/editTask?taskName=" + newID
           }
   
           var deleteButton = document.createElement("button");
           deleteButton.id = id + "DELETE";
           deleteButton.textContent = "DELETE";
-          deleteButton.onclick = function(){
-              document.getElementById(id).remove();
+          deleteButton.onclick = function(ev){
+              document.getElementById(ev.target.id.replace("DELETE", "")).remove();
               const options = {
                   method: 'POST',
                   headers: {'Content-Type': 'application/json'},
-                  body: `{"taskID":"${id}"}`
+                  body: `{"taskID":"${ev.target.id.replace("DELETE", "")}"}`
                 };
                 
               fetch(baseURL + '/deleteTask', options)
@@ -99,7 +98,7 @@ function updateScheduledTasks(){
                 unscheduleButton.id = x + "UNSCHEDULE";
                 unscheduleButton.textContent = "UNSCHEDULE";
 
-                unscheduleButton.onclick = function(){
+                unscheduleButton.onclick = function(ev){
                     
                     const options = {
                         method: 'POST',
@@ -136,10 +135,10 @@ function updateDevices(){
     .then(response => {
         for(let x of response["data"]){
             var deviceHolder = document.getElementById("deviceSelect");
-            var select = document.createElement("option");
-            select.value = x;
-            select.textContent = x;
-            deviceHolder.appendChild(select);
+            var option = document.createElement("option");
+            option.value = JSON.parse(x)["devName"];
+            option.textContent = JSON.parse(x)["devName"];
+            deviceHolder.appendChild(option);
         }
     })
     .catch(err => console.error(err));
