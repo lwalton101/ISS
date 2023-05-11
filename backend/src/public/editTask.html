@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HTML 5 Boilerplate</title>
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="js/editTask.js"></script>
+  </head>
+  <body>
+
+    <div class="topnav">
+      <a href="/tasks">Tasks</a>
+      <a href="/devices">Devices</a>
+      <a href="/upload">Upload</a>
+    </div>
+	<h1>Edit Task</h1>
+    <p id="error">An Error Occured</p>   
+    
+    <p id="idP">ID: </p>
+    <input type="text" placeholder="Enter Name:" id="nameInput">
+    <input type="file" id="fileInput">
+    <h2>Variables</h2>
+    <button onclick="addVariable()">Add Variable</button>
+    <ul id="varHolder">
+    </ul>
+
+    <h2>Code Preview</h2>
+    <p id="codePreview">
+        print("hello world")
+        <br>
+        pyautogui.click(5,15)
+    </p>
+
+    <button id="saveButton" onclick="saveTask()">Save</button>
+</body>
+</html>
