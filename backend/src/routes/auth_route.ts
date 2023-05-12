@@ -5,7 +5,7 @@ import path from 'path';
 const authRouter = express.Router();
 
 authRouter.get('/auth/login', function(req, res, next) {
-    res.render('login');
+    res.sendFile('public/login.html', {root: path.join(__dirname, "../")});
 });
 
 export default authRouter;
