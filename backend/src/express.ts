@@ -7,6 +7,7 @@ import cors from "cors";
 import devicesRouter from './routes/api/devices_route';
 import tasksRouter from './routes/api/tasks_routes';
 import miscRouter from './routes/api/misc_route';
+import authRouter from './routes/auth_route';
 
 const app: core.Express = express();
 const expressPort: number = 8080;
@@ -21,6 +22,7 @@ export function initExpress(){
     app.use(cors());
 
     app.use(websiteRouter);
+    app.use(authRouter);
     app.use(devicesRouter);
     app.use(tasksRouter);
     app.use(miscRouter);
