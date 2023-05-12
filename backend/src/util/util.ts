@@ -12,3 +12,12 @@ export function checkIfValueInJson(jsonObj: any, value: string, res: any) : bool
     }
 }
 
+export function loggedIn(req: any, res: any, next: any) {
+    console.log(req.user)
+    if (req.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
